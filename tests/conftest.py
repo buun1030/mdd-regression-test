@@ -20,7 +20,6 @@ config.read(config_path)
 BASE_URL = config['settings']['base_url']
 EMAIL = config['settings']['email']
 PASSWORD = config['settings']['password']
-THINKER_WORKSPACE = config['settings']['thinker_workspace']
 
 @pytest.fixture(scope="session")
 def session_id():
