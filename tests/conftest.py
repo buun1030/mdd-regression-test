@@ -1155,7 +1155,7 @@ def task_ids(claimed_tasks_data):
     return [task.get("id") for task in claimed_tasks_data if task.get("id")]
 
 @pytest.fixture(scope="session")
-def task_details(session_id, task_ids):
+def initial_task_details(session_id, task_ids):
     """
     Fetches details for each task_id and returns a dictionary of task_id to its detail data.
     """
@@ -1177,6 +1177,76 @@ def task_details(session_id, task_ids):
         assert response_data["code"] == 0
         assert "data" in response_data
         task_detail_map[task_id] = response_data["data"]
+    with open("/Users/six/mdd-workspace/regression/task_detail_map.json", "w") as f:
+        f.write(json.dumps(task_detail_map, indent=4))
+    return task_detail_map
+
+@pytest.fixture(scope="session")
+def edit_field_value_via_tasks(session_id, initial_task_details):
+    """
+    Edit field value via tasks and submit.
+    """
+    for task_id, detail_data in initial_task_details.items():
+        edit_task_url = f"{BASE_URL}/question-taskpool/api/v1/edit-task-data"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {session_id}"
+        }
+            
+        # Extract field_name and current_value from required_fields
+        required_fields = []
+        if "required_fields" in detail_data:
+            for field_i in detail_data["required_fields"]:
+                field = field_i.get("field")
+                required_fields.append({"field_name": field.get("field_name"), "field_value": field.get("current_value")})
+                
+        adjust_interest_rate_payload = {
+            "task_id": task_id,
+            "required_fields": required_fields,
+            "editing_fields": [
+                {
+                    "field_name": "_loan.isInterestRateAdjustment",
+                    "field_value": "true"
+                },
+                {
+                    "field_name": "_loan.interestRateAdjustment",
+                    "field_value": "-0.5"
+                }
+            ]
+        }
+        
+        if "verification_method_name" in detail_data and "informationInterest" in detail_data["verification_method_name"]:
+            response = requests.post(edit_task_url, json=adjust_interest_rate_payload, headers=headers)
+            response.raise_for_status()
+            response_data = response.json()
+            assert "code" in response_data
+            assert response_data["code"] == 0
+
+@pytest.fixture(scope="session")
+def task_details(session_id, task_ids, edit_field_value_via_tasks):
+    """
+    Fetches details for each task_id and returns a dictionary of task_id to its detail data.
+    """
+    task_detail_map = {}
+    for task_id in task_ids:
+        get_task_detail_url = f"{BASE_URL}/question-taskpool/api/v1/get-task-detail"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {session_id}"
+        }
+        payload = {
+            "task_id": task_id,
+            "all_task_mode": False
+        }
+        response = requests.post(get_task_detail_url, json=payload, headers=headers)
+        response.raise_for_status()
+        response_data = response.json()
+        assert "code" in response_data
+        assert response_data["code"] == 0
+        assert "data" in response_data
+        task_detail_map[task_id] = response_data["data"]
+    with open("/Users/six/mdd-workspace/regression/task_detail_map.json", "w") as f:
+        f.write(json.dumps(task_detail_map, indent=4))
     return task_detail_map
 
 @pytest.fixture(scope="session")
@@ -1208,11 +1278,16 @@ def verified_tasks(session_id, task_details):
             "verifying_fields": verifying_fields,
             "required_fields": required_fields
         }
-        response = requests.post(verify_task_url, json=payload, headers=headers)
-        response.raise_for_status()
-        response_data = response.json()
-        assert "code" in response_data
-        assert response_data["code"] == 0
+        try:
+            response = requests.post(verify_task_url, json=payload, headers=headers)
+            response.raise_for_status()
+            response_data = response.json()
+            assert "code" in response_data
+            assert response_data["code"] == 0
+        except requests.exceptions.HTTPError as e:
+            print(f"\nError verifying task: {task_id} with verification method: {detail_data.get('verification_method_name')}")
+            print(f"\n{e}\nResponse Text: {e.response.text}")
+            raise
 
 @pytest.fixture(scope="session")
 def first_additional_answer_success(session_id, case_id, verified_tasks):
@@ -1245,7 +1320,7 @@ def first_additional_answer_success(session_id, case_id, verified_tasks):
     assert response_data["code"] == 0
 
 @pytest.fixture(scope="session")
-def approved_case_detail_data(session_id, case_id, first_additional_answer_success):
+def approved_status_notification(session_id, case_id, first_additional_answer_success):
     """
     Fetches case details after the first additional answer and checks for APPROVED status.
     """
@@ -1288,7 +1363,7 @@ def approved_case_detail_data(session_id, case_id, first_additional_answer_succe
     return response_data["data"]
 
 @pytest.fixture(scope="session")
-def second_additional_answer_success(session_id, case_id, approved_case_detail_data):
+def second_additional_answer_success(session_id, case_id, approved_status_notification):
     """
     Sends the second set of additional answers (loan details).
     """
