@@ -1118,7 +1118,8 @@ def case_detail_data(session_id, case_id):
             time.sleep(retry_delay)
         else:
             # Last attempt failed, print the traversal path for debugging
-            print(f"Final attempt failed. Traversal Path: {response_data.get("data", {}).get("traversal_path")}")
+            traversal_path = response_data.get("data", {}).get("traversal_path")
+            print(f"Final attempt failed. Traversal Path: {traversal_path}")
             pytest.fail("Expected 'thinker.caDecision' with '__UNKNOWN__' value not found in traversal_path after retries")
 
     return response_data["data"]
@@ -1393,8 +1394,10 @@ def approved_status_notification(session_id, case_id):
             print(f"Attempt {attempt + 1}/{max_retries + 1}: Condition not met. Retrying in {retry_delay} seconds...")
             time.sleep(retry_delay)
         else:
-            print(f"Final attempt failed. Customer Data: {response_data.get("data", {}).get("customer_data")}")
-            print(f"Remaining Verifying Field List: {response_data.get("data", {}).get("remaining_verifying_field_list")}")
+            customer_data = response_data.get("data", {}).get("customer_data")
+            remaining_verifying_field_list = response_data.get("data", {}).get("remaining_verifying_field_list")
+            print(f"Final attempt failed. Customer Data: {customer_data}")
+            print(f"Remaining Verifying Field List: {remaining_verifying_field_list}")
             pytest.fail("Expected 'thinker.loanStatus' to be APPROVED and remaining_verifying_field_list to be empty after retries")
 
     return response_data["data"]
@@ -1482,8 +1485,10 @@ def completed_case_detail_data(session_id, case_id):
             print(f"Attempt {attempt + 1}/{max_retries + 1}: Condition not met. Retrying in {retry_delay} seconds...")
             time.sleep(retry_delay)
         else:
-            print(f"Final attempt failed. Customer Data: {response_data.get("data", {}).get("customer_data")}")
-            print(f"Status: {response_data.get("data", {}).get("status")}")
+            customer_data = response_data.get("data", {}).get("customer_data")
+            status = response_data.get("data", {}).get("status")
+            print(f"Final attempt failed. Customer Data: {customer_data}")
+            print(f"Status: {status}")
             pytest.fail("Expected 'thinker.loanStatus' to be COMPLETED, 'thinker.loanResult' to be A02, and status to be completed after retries")
 
     return response_data["data"]
