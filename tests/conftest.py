@@ -1327,7 +1327,7 @@ def verified_tasks(session_id, case_id):
 
 
 @pytest.fixture(scope="session")
-def first_additional_answer_success(session_id, case_id, verified_tasks):
+def first_additional_answer_success(session_id, case_id):
     """
     Sends the first set of additional answers (thinker.caDecision).
     """
@@ -1357,7 +1357,7 @@ def first_additional_answer_success(session_id, case_id, verified_tasks):
     assert response_data["code"] == 0
 
 @pytest.fixture(scope="session")
-def approved_status_notification(session_id, case_id, first_additional_answer_success):
+def approved_status_notification(session_id, case_id):
     """
     Fetches case details after the first additional answer and checks for APPROVED status.
     """
@@ -1400,7 +1400,7 @@ def approved_status_notification(session_id, case_id, first_additional_answer_su
     return response_data["data"]
 
 @pytest.fixture(scope="session")
-def second_additional_answer_success(session_id, case_id, approved_status_notification):
+def second_additional_answer_success(session_id, case_id):
     """
     Sends the second set of additional answers (loan details).
     """
@@ -1445,7 +1445,7 @@ def second_additional_answer_success(session_id, case_id, approved_status_notifi
     assert response_data["code"] == 0
 
 @pytest.fixture(scope="session")
-def completed_case_detail_data(session_id, case_id, second_additional_answer_success):
+def completed_case_detail_data(session_id, case_id):
     """
     Fetches case details after the second additional answer and checks for COMPLETED status.
     """
