@@ -1,12 +1,10 @@
 import pytest
-from conftest import claim_tasks
 
-def test_claim_case(session_id, case_id, completed_batch_process):
+def test_sca_claim_case(sca_claimed_tasks_data):
     """
     Tests the claim-case endpoint and verifies the returned tasks.
     """
-    claimed_tasks_data = claim_tasks(session_id, case_id)
-    assert len(claimed_tasks_data) > 0, "claimed_tasks_data should not be empty"
+    assert len(sca_claimed_tasks_data) > 0, "sca_claimed_tasks_data should not be empty"
 
     expected_task_substrings = [
         "customer.information",
@@ -26,7 +24,7 @@ def test_claim_case(session_id, case_id, completed_batch_process):
     found_task_substrings = []
     for expected_substring in expected_task_substrings:
         found = False
-        for task in claimed_tasks_data:
+        for task in sca_claimed_tasks_data:
             if expected_substring in task.get("task_method_name", ""):
                 found = True
                 found_task_substrings.append(expected_substring)

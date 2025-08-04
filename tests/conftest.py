@@ -1081,11 +1081,10 @@ def completed_batch_process(session_id, submitted_case_id):
     assert response_data["code"] == "0"
 
 @pytest.fixture(scope="session")
-def case_detail_data(session_id, case_id, completed_batch_process):
+def case_detail_data(session_id, case_id):
     """
     Fetches case details and returns the 'data' portion of the response.
     Includes retry logic for eventual consistency.
-    Depends on completed_batch_process to ensure batch process is complete.
     """
     get_detail_url = f"{BASE_URL}/question-taskpool/api/v1/get-case-detail"
     headers = {
@@ -1124,11 +1123,14 @@ def case_detail_data(session_id, case_id, completed_batch_process):
 
     return response_data["data"]
 
-@pytest.fixture(scope="session")
-def claimed_tasks_data(session_id, case_id):
+def claim_tasks(session_id, case_id):
     """
     Claims the case and returns the 'data' portion of the response.
+    This is a helper function, not a fixture.
     """
+    # Add a delay to allow the case to become claimable
+    time.sleep(5)
+    
     claim_url = f"{BASE_URL}/question-taskpool/api/v1/claim-case"
     headers = {
         "Content-Type": "application/json",
@@ -1147,18 +1149,42 @@ def claimed_tasks_data(session_id, case_id):
     assert isinstance(response_data["data"], list)
     return response_data["data"]
 
-@pytest.fixture(scope="session")
-def task_ids(claimed_tasks_data):
+def get_task_ids(session_id, case_id):
     """
-    Extracts task_id values from the claimed_tasks_data.
+    Claims tasks and extracts the task_id values.
+    This is a helper function, not a fixture.
     """
-    return [task.get("id") for task in claimed_tasks_data if task.get("id")]
+    
+    # Add a delay to all data are updated
+    time.sleep(5)
+    
+    get_detail_url = f"{BASE_URL}/question-taskpool/api/v1/get-case-detail"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {session_id}"
+    }
+    payload = {
+        "case_id": case_id
+    }
+    
+    response = requests.post(get_detail_url, json=payload, headers=headers)
+    response.raise_for_status() # Raise an exception for bad status codes (e.g., 4xx or 5xx)
+    response_data = response.json()
+    
+    task_ids = []
+    if "data" in response_data and "all_tasks" in response_data["data"] and isinstance(response_data["data"]["all_tasks"], list):
+        for task in response_data["data"]["all_tasks"]:
+            if "task_id" in task and task.get("status") == "claimed":
+                task_ids.append(task["task_id"])
+    
+    return task_ids 
 
-@pytest.fixture(scope="session")
-def initial_task_details(session_id, task_ids):
+def get_task_details(session_id, case_id):
     """
     Fetches details for each task_id and returns a dictionary of task_id to its detail data.
+    This is a helper function, not a fixture, so it can be called multiple times for fresh data.
     """
+    task_ids = get_task_ids(session_id, case_id)
     task_detail_map = {}
     for task_id in task_ids:
         get_task_detail_url = f"{BASE_URL}/question-taskpool/api/v1/get-task-detail"
@@ -1170,23 +1196,29 @@ def initial_task_details(session_id, task_ids):
             "task_id": task_id,
             "all_task_mode": False
         }
-        response = requests.post(get_task_detail_url, json=payload, headers=headers)
-        response.raise_for_status()
-        response_data = response.json()
-        assert "code" in response_data
-        assert response_data["code"] == 0
-        assert "data" in response_data
-        task_detail_map[task_id] = response_data["data"]
+        try:
+            response = requests.post(get_task_detail_url, json=payload, headers=headers)
+            response.raise_for_status()
+            response_data = response.json()
+            assert "code" in response_data
+            assert response_data["code"] == 0
+            assert "data" in response_data
+            task_detail_map[task_id] = response_data["data"]
+        except requests.exceptions.HTTPError as e:
+            print(f"\nError fetching task detail for task_id: {task_id}")
+            print(f"\n{e}\nResponse Text: {e.response.text}")
+            raise
     with open("/Users/six/mdd-workspace/regression/task_detail_map.json", "w") as f:
         f.write(json.dumps(task_detail_map, indent=4))
     return task_detail_map
 
 @pytest.fixture(scope="session")
-def edit_field_value_via_tasks(session_id, initial_task_details):
+def edit_field_value_via_tasks(session_id, case_id):
     """
     Edit field value via tasks and submit.
     """
-    for task_id, detail_data in initial_task_details.items():
+    task_details = get_task_details(session_id, case_id)
+    for task_id, detail_data in task_details.items():
         edit_task_url = f"{BASE_URL}/question-taskpool/api/v1/edit-task-data"
         headers = {
             "Content-Type": "application/json",
@@ -1211,49 +1243,50 @@ def edit_field_value_via_tasks(session_id, initial_task_details):
                 {
                     "field_name": "_loan.interestRateAdjustment",
                     "field_value": "-0.5"
+                },
+                {
+                    "field_name": "thinker.roleAssignment",
+                    "field_value": "SCA"
                 }
             ]
         }
         
-        if "verification_method_name" in detail_data and "informationInterest" in detail_data["verification_method_name"]:
+        if "verification_method_name" in detail_data and "summary" in detail_data["verification_method_name"]:
             response = requests.post(edit_task_url, json=adjust_interest_rate_payload, headers=headers)
             response.raise_for_status()
             response_data = response.json()
             assert "code" in response_data
             assert response_data["code"] == 0
+            
+@pytest.fixture(scope="session")
+def sca_claimed_tasks_data(session_id, case_id):
+    """
+    Claims the case and returns the 'data' portion of the response.
+    """
+    claim_url = f"{BASE_URL}/question-taskpool/api/v1/claim-case"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {session_id}"
+    }
+    payload = {
+        "case_id": case_id
+    }
+
+    response = requests.post(claim_url, json=payload, headers=headers)
+    response.raise_for_status() # Raise an exception for bad status codes
+    response_data = response.json()
+    assert "code" in response_data
+    assert response_data["code"] == 0
+    assert "data" in response_data
+    assert isinstance(response_data["data"], list)
+    return response_data["data"]
 
 @pytest.fixture(scope="session")
-def task_details(session_id, task_ids, edit_field_value_via_tasks):
+def verified_tasks(session_id, case_id):
     """
-    Fetches details for each task_id and returns a dictionary of task_id to its detail data.
+    Verifies task data for each task after an edit has been made.
     """
-    task_detail_map = {}
-    for task_id in task_ids:
-        get_task_detail_url = f"{BASE_URL}/question-taskpool/api/v1/get-task-detail"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {session_id}"
-        }
-        payload = {
-            "task_id": task_id,
-            "all_task_mode": False
-        }
-        response = requests.post(get_task_detail_url, json=payload, headers=headers)
-        response.raise_for_status()
-        response_data = response.json()
-        assert "code" in response_data
-        assert response_data["code"] == 0
-        assert "data" in response_data
-        task_detail_map[task_id] = response_data["data"]
-    with open("/Users/six/mdd-workspace/regression/task_detail_map.json", "w") as f:
-        f.write(json.dumps(task_detail_map, indent=4))
-    return task_detail_map
-
-@pytest.fixture(scope="session")
-def verified_tasks(session_id, task_details):
-    """
-    Verifies task data for each task.
-    """
+    task_details = get_task_details(session_id, case_id)
     for task_id, detail_data in task_details.items():
         verify_task_url = f"{BASE_URL}/question-taskpool/api/v1/verify-task-data"
         headers = {
@@ -1278,16 +1311,20 @@ def verified_tasks(session_id, task_details):
             "verifying_fields": verifying_fields,
             "required_fields": required_fields
         }
-        try:
-            response = requests.post(verify_task_url, json=payload, headers=headers)
-            response.raise_for_status()
-            response_data = response.json()
-            assert "code" in response_data
-            assert response_data["code"] == 0
-        except requests.exceptions.HTTPError as e:
-            print(f"\nError verifying task: {task_id} with verification method: {detail_data.get('verification_method_name')}")
-            print(f"\n{e}\nResponse Text: {e.response.text}")
-            raise
+        task = detail_data.get("task")
+        if task.get("status") == "claimed":
+            try:
+                response = requests.post(verify_task_url, json=payload, headers=headers)
+                response.raise_for_status()
+                response_data = response.json()
+                assert "code" in response_data
+                assert response_data["code"] == 0
+            except requests.exceptions.HTTPError as e:
+                print(f"\nError verifying task: {task_id} with verification method: {detail_data.get('verification_method_name')}")
+                print(f"\n{e}\nResponse Text: {e.response.text}")
+                raise
+
+
 
 @pytest.fixture(scope="session")
 def first_additional_answer_success(session_id, case_id, verified_tasks):
