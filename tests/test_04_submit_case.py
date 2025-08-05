@@ -1,6 +1,9 @@
-def test_submit_case(submitted_case_id):
+from conftest import submitted_case_id
+
+def test_submit_case(session_id, case_id):
     """
     Tests that the submitted_case_id fixture is working correctly.
     """
-    assert isinstance(submitted_case_id, str)
-    assert len(submitted_case_id) > 0
+    case_id = submitted_case_id(session_id, case_id)
+    assert isinstance(case_id, str)
+    assert len(case_id) > 0

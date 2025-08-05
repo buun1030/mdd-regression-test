@@ -60,7 +60,6 @@ def case_id(session_id):
     print(f"Generated Case ID: {generated_case_id}")
     return generated_case_id
 
-@pytest.fixture(scope="session")
 def submitted_case_id(session_id, case_id):
     """
     Submits the case and returns the case_id.
@@ -84,8 +83,7 @@ def submitted_case_id(session_id, case_id):
     assert response_data["message"] == "processing"
     return case_id
 
-@pytest.fixture(scope="session")
-def completed_batch_process(session_id, submitted_case_id):
+def completed_batch_process(session_id, case_id):
     """
     Performs the batch-process-complete API call with retry logic.
     This fixture ensures the batch process is completed before dependent fixtures/tests run.
@@ -96,7 +94,7 @@ def completed_batch_process(session_id, submitted_case_id):
         "Authorization": f"Bearer {session_id}"
     }
     payload = {
-        "case_id": submitted_case_id
+        "case_id": case_id
     }
 
     # Initial delay after submit case
