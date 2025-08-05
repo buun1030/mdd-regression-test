@@ -334,3 +334,23 @@ def verified_tasks(session_id, case_id):
                 print(f"\nError verifying task: {task_id} with verification method: {detail_data.get('verification_method_name')}")
                 print(f"\n{e}\nResponse Text: {e.response.text}")
                 raise
+            
+def get_booking_detail(session_id, case_id):
+    """
+    Edit field value via tasks and submit.
+    """ 
+    get_report_url = f"{BASE_URL}/question-taskpool/api/v1/get-booking-report-detail"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {session_id}"
+    }
+    payload = {
+        "case_id": case_id
+    }
+
+    response = requests.post(get_report_url, json=payload, headers=headers)
+    assert response.status_code == 200
+    response_data = response.json()
+    
+    assert "data" in response_data
+    return response_data["data"]
