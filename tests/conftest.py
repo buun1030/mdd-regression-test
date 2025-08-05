@@ -246,6 +246,8 @@ def get_task_details(session_id, case_id):
     Fetches details for each task_id and returns a dictionary of task_id to its detail data.
     This is a helper function, not a fixture, so it can be called multiple times for fresh data.
     """
+    time.sleep(5)
+    
     task_ids = get_task_ids(session_id, case_id)
     task_detail_map = {}
     for task_id in task_ids:
@@ -285,15 +287,12 @@ def edit_task_data(session_id, payload):
         "Authorization": f"Bearer {session_id}"
     }
     
-    time.sleep(10)
-    
     response = requests.post(edit_task_url, json=payload, headers=headers)
     response.raise_for_status()
     response_data = response.json()
     assert "code" in response_data
     assert response_data["code"] == 0
 
-@pytest.fixture(scope="session")
 def verified_tasks(session_id, case_id):
     """
     Verifies task data for each task after an edit has been made.
