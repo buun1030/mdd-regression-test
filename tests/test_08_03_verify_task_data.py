@@ -1,6 +1,6 @@
 import pytest
 import time
-from conftest import verified_tasks, get_case_detail
+from helpers import verified_tasks, get_case_detail
 
 def test_verify_task_data(session_id, case_id):
     """

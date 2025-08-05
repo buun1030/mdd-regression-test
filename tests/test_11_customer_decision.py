@@ -1,4 +1,4 @@
-from conftest import answered_questions
+from helpers import answered_questions
 
 def test_customer_decision(session_id, case_id):
     """

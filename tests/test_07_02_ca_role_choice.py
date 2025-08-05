@@ -1,5 +1,5 @@
 import pytest
-from conftest import get_task_details
+from helpers import get_task_details
 
 def test_sca_role_choice(session_id, case_id):
     """

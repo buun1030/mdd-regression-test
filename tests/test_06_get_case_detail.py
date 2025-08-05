@@ -1,6 +1,6 @@
 import pytest
 import time
-from conftest import get_case_detail
+from helpers import get_case_detail
 
 def test_get_case_detail(session_id, case_id):
     """

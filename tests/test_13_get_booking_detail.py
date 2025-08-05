@@ -1,4 +1,4 @@
-from conftest import get_booking_detail
+from helpers import get_booking_detail
 
 def test_get_booking_detail(session_id, case_id):
     """
