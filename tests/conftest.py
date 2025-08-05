@@ -60,7 +60,27 @@ def case_id(session_id):
     print(f"Generated Case ID: {generated_case_id}")
     return generated_case_id
 
-@pytest.fixture(scope="session")
+def answered_questions(session_id, case_id, answers_payload):
+    """
+    Answers questions for the case.
+    """
+    answer_url = f"{BASE_URL}/question-taskpool/api/v1/answer-question"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {session_id}"
+    }
+
+    payload = {
+        "case_id": case_id,
+        "answers": answers_payload
+    }
+
+    response = requests.post(answer_url, json=payload, headers=headers)
+    response.raise_for_status() # Raise an exception for bad status codes
+    response_data = response.json()
+    assert "code" in response_data
+    assert response_data["code"] == 0
+
 def submitted_case_id(session_id, case_id):
     """
     Submits the case and returns the case_id.
@@ -84,8 +104,7 @@ def submitted_case_id(session_id, case_id):
     assert response_data["message"] == "processing"
     return case_id
 
-@pytest.fixture(scope="session")
-def completed_batch_process(session_id, submitted_case_id):
+def completed_batch_process(session_id, case_id):
     """
     Performs the batch-process-complete API call with retry logic.
     This fixture ensures the batch process is completed before dependent fixtures/tests run.
@@ -96,7 +115,7 @@ def completed_batch_process(session_id, submitted_case_id):
         "Authorization": f"Bearer {session_id}"
     }
     payload = {
-        "case_id": submitted_case_id
+        "case_id": case_id
     }
 
     # Initial delay after submit case
@@ -123,27 +142,6 @@ def completed_batch_process(session_id, submitted_case_id):
     response_data = response.json()
     assert "code" in response_data
     assert response_data["code"] == "0"
-
-def answered_questions(session_id, case_id, answers_payload):
-    """
-    Answers questions for the case.
-    """
-    answer_url = f"{BASE_URL}/question-taskpool/api/v1/answer-question"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {session_id}"
-    }
-
-    payload = {
-        "case_id": case_id,
-        "answers": answers_payload
-    }
-
-    response = requests.post(answer_url, json=payload, headers=headers)
-    response.raise_for_status() # Raise an exception for bad status codes
-    response_data = response.json()
-    assert "code" in response_data
-    assert response_data["code"] == 0
 
 def get_case_detail(session_id, case_id):
     """
