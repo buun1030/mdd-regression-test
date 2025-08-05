@@ -1,11 +1,13 @@
-4
 import pytest
+import time
 from conftest import claim_case, release_case
 
 def test_md_claim_case(session_id, case_id):
     """
     Tests the claim-case endpoint and verifies the returned tasks.
     """
+    time.sleep(5)
+    
     release_case(session_id, case_id) # avoid the case is already claimed by previous role
     claimed_tasks_data = claim_case(session_id, case_id)
     assert len(claimed_tasks_data) > 0, "claimed_tasks_data should not be empty"
