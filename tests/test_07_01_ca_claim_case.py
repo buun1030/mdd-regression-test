@@ -1,11 +1,11 @@
 import pytest
-from conftest import claim_tasks
+from conftest import claim_case
 
-def test_claim_case(session_id, case_id, completed_batch_process):
+def test_ca_claim_case(session_id, case_id):
     """
     Tests the claim-case endpoint and verifies the returned tasks.
     """
-    claimed_tasks_data = claim_tasks(session_id, case_id)
+    claimed_tasks_data = claim_case(session_id, case_id)
     assert len(claimed_tasks_data) > 0, "claimed_tasks_data should not be empty"
 
     expected_task_substrings = [
@@ -20,7 +20,7 @@ def test_claim_case(session_id, case_id, completed_batch_process):
         "informationInterest",
         "informationRevolving",
         "informationTerm",
-        "summary"
+        "summary.ca"
     ]
 
     found_task_substrings = []

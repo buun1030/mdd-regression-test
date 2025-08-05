@@ -1124,7 +1124,7 @@ def case_detail_data(session_id, case_id):
 
     return response_data["data"]
 
-def claim_tasks(session_id, case_id):
+def claim_case(session_id, case_id):
     """
     Claims the case and returns the 'data' portion of the response.
     This is a helper function, not a fixture.
@@ -1149,6 +1149,25 @@ def claim_tasks(session_id, case_id):
     assert "data" in response_data
     assert isinstance(response_data["data"], list)
     return response_data["data"]
+
+def release_case(session_id, case_id):
+    """
+    Releases the case to make it available for other users.
+    This is a helper function, not a fixture.
+    """
+    release_url = f"{BASE_URL}/question-taskpool/api/v1/release-case"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {session_id}"
+    }
+    payload = {
+        "case_id": case_id
+    }
+    response = requests.post(release_url, json=payload, headers=headers)
+    response.raise_for_status()
+    response_data = response.json()
+    assert "code" in response_data
+    assert response_data["code"] == 0
 
 def get_task_ids(session_id, case_id):
     """
@@ -1214,7 +1233,7 @@ def get_task_details(session_id, case_id):
     return task_detail_map
 
 @pytest.fixture(scope="session")
-def edit_field_value_via_tasks(session_id, case_id):
+def ca_escalate_role(session_id, case_id):
     """
     Edit field value via tasks and submit.
     """
@@ -1233,18 +1252,10 @@ def edit_field_value_via_tasks(session_id, case_id):
                 field = field_i.get("field")
                 required_fields.append({"field_name": field.get("field_name"), "field_value": field.get("current_value")})
                 
-        adjust_interest_rate_payload = {
+        payload = {
             "task_id": task_id,
             "required_fields": required_fields,
             "editing_fields": [
-                {
-                    "field_name": "_loan.isInterestRateAdjustment",
-                    "field_value": "true"
-                },
-                {
-                    "field_name": "_loan.interestRateAdjustment",
-                    "field_value": "-0.5"
-                },
                 {
                     "field_name": "thinker.roleAssignment",
                     "field_value": "SCA"
@@ -1253,34 +1264,11 @@ def edit_field_value_via_tasks(session_id, case_id):
         }
         
         if "verification_method_name" in detail_data and "summary" in detail_data["verification_method_name"]:
-            response = requests.post(edit_task_url, json=adjust_interest_rate_payload, headers=headers)
+            response = requests.post(edit_task_url, json=payload, headers=headers)
             response.raise_for_status()
             response_data = response.json()
             assert "code" in response_data
             assert response_data["code"] == 0
-            
-@pytest.fixture(scope="session")
-def sca_claimed_tasks_data(session_id, case_id):
-    """
-    Claims the case and returns the 'data' portion of the response.
-    """
-    claim_url = f"{BASE_URL}/question-taskpool/api/v1/claim-case"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {session_id}"
-    }
-    payload = {
-        "case_id": case_id
-    }
-
-    response = requests.post(claim_url, json=payload, headers=headers)
-    response.raise_for_status() # Raise an exception for bad status codes
-    response_data = response.json()
-    assert "code" in response_data
-    assert response_data["code"] == 0
-    assert "data" in response_data
-    assert isinstance(response_data["data"], list)
-    return response_data["data"]
 
 @pytest.fixture(scope="session")
 def verified_tasks(session_id, case_id):
@@ -1325,40 +1313,84 @@ def verified_tasks(session_id, case_id):
                 print(f"\n{e}\nResponse Text: {e.response.text}")
                 raise
 
-
+@pytest.fixture(scope="session")
+def sca_escalate_role(session_id, case_id):
+    """
+    Edit field value via tasks and submit.
+    """
+    task_details = get_task_details(session_id, case_id)
+    for task_id, detail_data in task_details.items():
+        edit_task_url = f"{BASE_URL}/question-taskpool/api/v1/edit-task-data"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {session_id}"
+        }
+            
+        # Extract field_name and current_value from required_fields
+        required_fields = []
+        if "required_fields" in detail_data:
+            for field_i in detail_data["required_fields"]:
+                field = field_i.get("field")
+                required_fields.append({"field_name": field.get("field_name"), "field_value": field.get("current_value")})
+                
+        payload = {
+            "task_id": task_id,
+            "required_fields": required_fields,
+            "editing_fields": [
+                {
+                    "field_name": "thinker.roleAssignment",
+                    "field_value": "MD"
+                }
+            ]
+        }
+        
+        if "verification_method_name" in detail_data and "summary" in detail_data["verification_method_name"]:
+            response = requests.post(edit_task_url, json=payload, headers=headers)
+            response.raise_for_status()
+            response_data = response.json()
+            assert "code" in response_data
+            assert response_data["code"] == 0
 
 @pytest.fixture(scope="session")
-def first_additional_answer_success(session_id, case_id):
+def md_decision(session_id, case_id):
     """
-    Sends the first set of additional answers (thinker.caDecision).
+    Edit field value via tasks and submit.
     """
-    answer_url = "https://moneydd-dev.thinkerfint.com/question-taskpool/api/v1/answer-question"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {session_id}"
-    }
-    payload = {
-        "answers": [
-            {
-                "field_name": "thinker.caDecision",
-                "field_value": "A02",
-                "source": "customer"
-            }
-        ],
-        "case_id": case_id,
-        "module_name": "",
-        "is_question_mode": False,
-        "save_valid_answers": False,
-        "not_skip_to_latest_question": False
-    }
-    response = requests.post(answer_url, json=payload, headers=headers)
-    response.raise_for_status()
-    response_data = response.json()
-    assert "code" in response_data
-    assert response_data["code"] == 0
+    task_details = get_task_details(session_id, case_id)
+    for task_id, detail_data in task_details.items():
+        edit_task_url = f"{BASE_URL}/question-taskpool/api/v1/edit-task-data"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {session_id}"
+        }
+            
+        # Extract field_name and current_value from required_fields
+        required_fields = []
+        if "required_fields" in detail_data:
+            for field_i in detail_data["required_fields"]:
+                field = field_i.get("field")
+                required_fields.append({"field_name": field.get("field_name"), "field_value": field.get("current_value")})
+                
+        payload = {
+            "task_id": task_id,
+            "required_fields": required_fields,
+            "editing_fields": [
+                {
+                    "field_name": "thinker.caDecision",
+                    "field_value": "A02"
+                }
+            ]
+        }
+        
+        if "verification_method_name" in detail_data and "summary" in detail_data["verification_method_name"]:
+            response = requests.post(edit_task_url, json=payload, headers=headers)
+            response.raise_for_status()
+            response_data = response.json()
+            assert "code" in response_data
+            assert response_data["code"] == 0
 
 @pytest.fixture(scope="session")
-def approved_status_notification(session_id, case_id):
+def approved_status(session_id, case_id):
     """
     Fetches case details after the first additional answer and checks for APPROVED status.
     """
@@ -1403,7 +1435,7 @@ def approved_status_notification(session_id, case_id):
     return response_data["data"]
 
 @pytest.fixture(scope="session")
-def second_additional_answer_success(session_id, case_id):
+def customer_decision(session_id, case_id):
     """
     Sends the second set of additional answers (loan details).
     """
@@ -1421,7 +1453,7 @@ def second_additional_answer_success(session_id, case_id):
             },
             {
                 "field_name": "loanAmount",
-                "field_value": "20000",
+                "field_value": "50000",
                 "source": "customer"
             },
             {
