@@ -1,7 +1,5 @@
-from conftest import completed_batch_process
-
-def test_batch_process_complete(session_id, case_id):
+def test_batch_process_complete(completed_batch_process):
     """
     Tests that the completed_batch_process fixture is working correctly.
     """
-    case_id = completed_batch_process(session_id, case_id)
+    assert completed_batch_process is None # The fixture asserts success internally
