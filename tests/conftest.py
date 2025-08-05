@@ -1228,7 +1228,8 @@ def get_task_details(session_id, case_id):
             print(f"\nError fetching task detail for task_id: {task_id}")
             print(f"\n{e}\nResponse Text: {e.response.text}")
             raise
-    with open("/Users/six/mdd-workspace/regression/task_detail_map.json", "w") as f:
+    task_detail_map_path = os.path.join(ROOT_DIR, '..', 'task_detail_map.json')
+    with open(task_detail_map_path, "w") as f:
         f.write(json.dumps(task_detail_map, indent=4))
     return task_detail_map
 
