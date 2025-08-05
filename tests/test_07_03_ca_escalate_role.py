@@ -1,7 +1,7 @@
 import pytest
 from conftest import edit_task_data, get_task_details
 
-def test_md_decision(session_id, case_id):
+def test_ca_escalate_role(session_id, case_id):
     """
     Tests that the ca escalate_role is working correctly.
     """
@@ -19,8 +19,8 @@ def test_md_decision(session_id, case_id):
             "required_fields": required_fields,
             "editing_fields": [
                 {
-                    "field_name": "thinker.caDecision",
-                    "field_value": "A02"
+                    "field_name": "thinker.roleAssignment",
+                    "field_value": "SCA"
                 }
             ]
         }
