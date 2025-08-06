@@ -1,6 +1,6 @@
 import pytest
 import time
-from conftest import claim_case, release_case
+from helpers import claim_case, release_case
 
 def test_md_claim_case(session_id, case_id):
     """

@@ -1,5 +1,5 @@
 import pytest
-from conftest import claim_case
+from helpers import claim_case
 
 def test_ca_claim_case(session_id, case_id):
     """

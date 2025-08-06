@@ -1,4 +1,4 @@
-from conftest import submitted_case_id
+from helpers import submitted_case_id
 
 def test_submit_case(session_id, case_id):
     """

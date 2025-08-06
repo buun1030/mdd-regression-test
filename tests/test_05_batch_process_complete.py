@@ -1,4 +1,4 @@
-from conftest import completed_batch_process
+from helpers import completed_batch_process
 
 def test_batch_process_complete(session_id, case_id):
     """
