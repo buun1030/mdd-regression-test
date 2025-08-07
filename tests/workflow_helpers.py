@@ -309,7 +309,7 @@ def verify_tasks(session, session_id, case_id):
                 print(f"\n{e}\nResponse Text: {e.response.text}")
                 raise
 
-def get_booking_report_detail(session, session_id, case_id):
+def get_booking_detail(session, session_id, case_id):
     """
     Gets the booking report detail.
     """

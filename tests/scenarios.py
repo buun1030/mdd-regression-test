@@ -952,7 +952,52 @@ HAPPY_PATH_SCENARIOS = [
             "sca_to_md": "MD"
         },
         "md_decision": "A02",
-        "expected_final_status": "COMPLETED",
-        "expected_loan_result": "A02"
+        "expected": {
+            "task_name_substrings": {
+                "ca": [
+                    "customer.information",
+                    "occupation.informationPresent",
+                    "bank.1.information",
+                    "occupation.informationPrevious",
+                    "informationNewCustomer",
+                    "document.other",
+                    "ncb.direct",
+                    "document.main",
+                    "informationInterest",
+                    "informationRevolving",
+                    "informationTerm",
+                    "summary.ca"
+                ],
+                "sca": [
+                    "customer.information",
+                    "occupation.informationPresent",
+                    "bank.1.information",
+                    "occupation.informationPrevious",
+                    "informationNewCustomer",
+                    "document.other",
+                    "ncb.direct",
+                    "document.main",
+                    "informationInterest",
+                    "informationRevolving",
+                    "informationTerm",
+                    "summary.sca"
+                ],
+                "md": [
+                    "summary.md"
+                ]
+            },
+            "available_escalation_roles": {
+                "ca": ["CA", "SCA"],
+                "sca": ["CA", "SCA", "CM", "MD", "CC", "EC"],
+                "md": ["CA", "SCA", "CM", "MD", "CC", "EC"]
+            },
+            "unavailable_escalation_roles": {
+                "ca": ["CM", "MD", "CC", "EC"],
+                "sca": [],
+                "md": []
+            },
+            "final_status": "COMPLETED",
+            "loan_result": "A02"
+        }
     }
 ]
