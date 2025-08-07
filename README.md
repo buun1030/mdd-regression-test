@@ -85,7 +85,7 @@ python3 -m pytest
 │   ├── test_11_check_approved_status.py
 │   ├── test_12_second_additional_answer.py
 │   ├── test_13_check_completed_status.py
-│   ├── test_14_get_booking_report_detail.py
+│   ├── test_14_get_booking_detail.py
 │   └── test_other_features.py
 └── config.ini
 ```
@@ -106,7 +106,7 @@ python3 -m pytest
 *   `tests/test_11_check_approved_status.py`: Test file for checking approved status.
 *   `tests/test_12_second_additional_answer.py`: Test file for sending the second additional answer.
 *   `tests/test_13_check_completed_status.py`: Test file for checking completed status.
-*   `tests/test_14_get_booking_report_detail.py`: Test file for getting booking report details.
+*   `tests/test_14_get_booking_detail.py`: Test file for getting booking report details.
 *   `tests/test_other_features.py`: Example test file demonstrating the use of the `session_id` fixture.
 *   `config.ini`: Configuration file for the API base URL, login credentials, product name, and Thinker-Workspace.
 
