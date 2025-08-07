@@ -31,7 +31,6 @@ def test_full_workflow(session, email, password, scenario):
     print("Step 4: Submitting Case...")
     # Step 4: Submit Case
     wf.submit_case(session, session_id, case_id)
-    time.sleep(5) # Add a delay after submitting the case
     print("Step 4: Case submitted.")
 
     print("Step 5: Completing Batch Process...")
@@ -39,9 +38,8 @@ def test_full_workflow(session, email, password, scenario):
     wf.complete_batch_process(session, session_id, case_id)
     print("Step 5: Batch Process completed.")
 
-    print("Step 6: Verifying CA Decision is Unknown...")
+    print("Step 6: Verifying Case Details (CA Decision Unknown, Loan Status VERIFYING, etc.)...")
     # Step 6.1: Verify CA Decision is Unknown
-    case_detail = wf.get_case_detail(session, session_id, case_id)
     time.sleep(10)
     max_retries = 3
     retry_delay = 5
@@ -71,12 +69,14 @@ def test_full_workflow(session, email, password, scenario):
     # Step 6.4: Verify All Tasks are Not Empty
     all_tasks = case_detail.get("all_tasks", [])
     assert len(all_tasks) > 0, "all_tasks should not be empty"
-    print("Step 6: CA Decision is Unknown verified.")
+    print("Step 6: Case Details verified.")
     
     print("Step 7: CA Role...")
     # Step 7.1: CA Claim Case
+    print("  7.1: Claiming CA case...")
     claimed_tasks_data = wf.claim_case(session, session_id, case_id)
     assert len(claimed_tasks_data) > 0, "claimed_tasks_data should not be empty"
+    print("  7.1: CA case claimed.")
 
     expected_task_substrings = scenario["expected"]["task_name_substrings"]["ca"]
 
@@ -92,8 +92,10 @@ def test_full_workflow(session, email, password, scenario):
 
     assert len(found_task_substrings) == len(expected_task_substrings), \
         f"Missing some expected task substrings. Found: {found_task_substrings}, Expected: {expected_task_substrings}"
+    print("  7.1: CA tasks verified.")
         
     # Step 7.2: Verify available escalation roles in CA tasks
+    print("  7.2: Verifying available escalation roles for CA...")
     task_details = wf.get_task_details(session, session_id, case_id)
     for task_id, detail_data in task_details.items():
         if "verifying_fields" in detail_data and "summary" in detail_data.get("verification_method_name", ""):
@@ -112,8 +114,10 @@ def test_full_workflow(session, email, password, scenario):
                         assert not any(choice.get("value") == role for choice in choices), \
                             f"Unexpected role '{role}' found in choices for field 'thinker.roleAssignment'"
                     break
+    print("  7.2: Escalation roles for CA verified.")
 
     # Step 7.3: Escalate CA Role to SCA
+    print("  7.3: Escalating CA Role to SCA...")
     for task_id, detail_data in task_details.items():
         if "verification_method_name" in detail_data and "summary" in detail_data["verification_method_name"]:
             required_fields = []
@@ -129,12 +133,15 @@ def test_full_workflow(session, email, password, scenario):
                 ]
             }
             wf.edit_task_data(session, session_id, payload)
+    print("  7.3: CA Role escalated to SCA.")
     print("Step 7: CA Role completed.")
 
     print("Step 8: SCA Role...")
     # Step 8.1: SCA Claim Case
+    print("  8.1: Claiming SCA case...")
     claimed_tasks_data = wf.claim_case(session, session_id, case_id)
     assert len(claimed_tasks_data) > 0, "claimed_tasks_data should not be empty"
+    print("  8.1: SCA case claimed.")
     
     expected_task_substrings = scenario["expected"]["task_name_substrings"]["sca"]
     
@@ -150,8 +157,10 @@ def test_full_workflow(session, email, password, scenario):
         
     assert len(found_task_substrings) == len(expected_task_substrings), \
         f"Missing some expected task substrings. Found: {found_task_substrings}, Expected: {expected_task_substrings}"
+    print("  8.1: SCA tasks verified.")
     
     # Step 8.2: Verify available escalation roles in SCA tasks
+    print("  8.2: Verifying available escalation roles for SCA...")
     task_details = wf.get_task_details(session, session_id, case_id)
     for task_id, detail_data in task_details.items():
         if "verifying_fields" in detail_data and "summary" in detail_data.get("verification_method_name", ""):
@@ -170,15 +179,19 @@ def test_full_workflow(session, email, password, scenario):
                         assert not any(choice.get("value") == role for choice in choices), \
                             f"Unexpected role '{role}' found in choices for field 'thinker.roleAssignment'"
                     break
+    print("  8.2: Available escalation roles verified.")
 
     # Step 8.3: Verify SCA tasks
+    print("  8.3: Verifying SCA tasks...")
     wf.verify_tasks(session, session_id, case_id)
     time.sleep(5) 
     case_detail = wf.get_case_detail(session, session_id, case_id)
     remaining_verifying_field_list = case_detail.get("remaining_verifying_field_list", [])
     assert remaining_verifying_field_list == [], "remaining_verifying_field_list should be empty"
+    print("  8.3: SCA tasks verified.")
 
     # Step 8.4: Escalate SCA Role to MD
+    print("  8.4: Escalating SCA Role to MD...")
     for task_id, detail_data in task_details.items():
         if "verification_method_name" in detail_data and "summary" in detail_data["verification_method_name"]:
             required_fields = []
@@ -194,6 +207,7 @@ def test_full_workflow(session, email, password, scenario):
                 ]
             }
             wf.edit_task_data(session, session_id, payload)
+    print("  8.4: SCA Role escalated to MD.")
     print("Step 8: SCA Role completed.")
 
     print("Step 9: MD Role...")

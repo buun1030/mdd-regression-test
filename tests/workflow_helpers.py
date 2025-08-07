@@ -90,6 +90,7 @@ def submit_case(session, session_id, case_id):
     with session.post(submit_url, json=payload, headers=headers) as response:
         response.raise_for_status()
         response_data = response.json()
+        print(f"Submit Case Response: {response_data}")
         assert "case_id" in response_data
         assert "case_submission_id" in response_data
         assert "message" in response_data
@@ -109,19 +110,20 @@ def complete_batch_process(session, session_id, case_id):
         "case_id": case_id
     }
 
-    time.sleep(5)
+    time.sleep(10)
 
     max_retries = 3
-    retry_delay = 3
+    retry_delay = 5
 
     for attempt in range(max_retries + 1):
         with session.post(batch_process_url, json=payload, headers=headers) as response:
             if response.status_code == 200:
                 break
             elif response.status_code == 500 and attempt < max_retries:
-                print(f"Attempt {attempt + 1}/{max_retries + 1}: Received 500. Retrying in {retry_delay} seconds...")
+                print(f"Attempt {attempt + 1}/{max_retries + 1}: Received {response.status_code}. Response: {response.text}. Retrying in {retry_delay} seconds...")
                 time.sleep(retry_delay)
             else:
+                print(f"Final attempt for complete_batch_process failed. Status: {response.status_code}. Response: {response.text}")
                 break
 
     assert response.status_code == 200, f"Expected 200, but got {response.status_code}. Response: {response.text}"
@@ -221,7 +223,7 @@ def get_task_details(session, session_id, case_id):
     """
     Fetches details for each task_id and returns a dictionary of task_id to its detail data.
     """
-    time.sleep(5)
+    time.sleep(10)
     
     task_ids = get_task_ids(session, session_id, case_id)
     task_detail_map = {}
