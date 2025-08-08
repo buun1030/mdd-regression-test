@@ -6,7 +6,7 @@ valid_base64_content = "[\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAE
 
 # Each dictionary represents one full, independent end-to-end test run.
 # You can add as many scenarios as you need.
-HAPPY_PATH_SCENARIOS = [
+NORMAL_HAPPY_PATH_SCENARIOS = [
     {
         "test_id": "a02_ploan_new_customer",
         "product_name": "moneydd.pLoan",

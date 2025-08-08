@@ -1,9 +1,9 @@
 import pytest
 import time
-from .scenarios import HAPPY_PATH_SCENARIOS, GSB_LEAD_HAPPY_PATH_SCENARIOS
+from .scenarios import NORMAL_HAPPY_PATH_SCENARIOS, GSB_LEAD_HAPPY_PATH_SCENARIOS
 from . import workflow_helpers as wf
 
-@pytest.mark.parametrize("scenario", HAPPY_PATH_SCENARIOS, ids=lambda s: s["test_id"])
+@pytest.mark.parametrize("scenario", NORMAL_HAPPY_PATH_SCENARIOS, ids=lambda s: s["test_id"])
 def test_normal_workflow(session, email, password, scenario):
     """
     Tests the entire end-to-end user workflow from login to booking.
@@ -472,6 +472,7 @@ def test_gsb_lead_workflow(session, email, password, scenario):
     
     print("Step 10: Booking Detail...")
     # Step 10: Get Booking Detail
+    time.sleep(5)
     booking_detail = wf.get_booking_detail(session, session_id, case_id)
     assert "latest_status" in booking_detail
     assert booking_detail["latest_status"] == "COMPLETED"
