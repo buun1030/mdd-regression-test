@@ -2168,9 +2168,9 @@ HAPPY_PATH_SCENARIOS = [
     }
 ]
 
-GSB_LEAD_SCENARIOS = [
+GSB_LEAD_HAPPY_PATH_SCENARIOS = [
     {
-        "test_id": "ploan_new_customer",
+        "test_id": "ploan",
         "product_name": "moneydd.pLoan",
         "answers": {
             "initial_questions": [
@@ -2482,6 +2482,325 @@ GSB_LEAD_SCENARIOS = [
             "customer_decision": [
                 {"field_name": "_loan.customerDecision", "field_value": "ACCEPT", "source": "customer"},
                 {"field_name": "loanAmount", "field_value": "30000", "source": "customer"},
+                {"field_name": "_loan.repaymentType", "field_value": "TERM", "source": "customer"},
+                {"field_name": "scheduleSettings.repaymentInstallments", "field_value": "24", "source": "customer"},
+                {"field_name": "scheduleSettings.fixedDaysOfMonth", "field_value": "2", "source": "customer"}
+            ]
+        }
+    },
+    {
+        "test_id": "nanoLoan",
+        "product_name": "moneydd.nanoLoan",
+        "answers": {
+            "initial_questions": [
+                {
+                    "source": "customer",
+                    "field_name": "_loan.loanApplicationNumber",
+                    "field_value": "TESTAUTOAPPROVE"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_gsb.foundCustomer",
+                    "field_value": "FOUND"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "mobilePhone",
+                    "field_value": "0614519528"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_loan.requestDate",
+                    "field_value": "1726630409"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_customerInfo.nationalIdNumber",
+                    "field_value": "1200100436999"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_customerInfo.titleName",
+                    "field_value": "2101"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "firstName",
+                    "field_value": "ทดสอบ"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "middleName",
+                    "field_value": ""
+                },
+                {
+                    "source": "customer",
+                    "field_name": "lastName",
+                    "field_value": "ทดสอบ"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_customerInfo.enFirstName",
+                    "field_value": "Test"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_customerInfo.enLastName",
+                    "field_value": "Test"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "birthDate",
+                    "field_value": "975110400"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.1.line1",
+                    "field_value": "66/30"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.1.line2",
+                    "field_value": " "
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.1.city",
+                    "field_value": "12"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.1.district",
+                    "field_value": "1203"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.1.subDistrict",
+                    "field_value": "120305"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.1.postcode",
+                    "field_value": "11140"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.2.line1",
+                    "field_value": "21/26 หมู่ที่ 2"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.2.line2",
+                    "field_value": " "
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.2.city",
+                    "field_value": "12"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.2.district",
+                    "field_value": "1203"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.2.subDistrict",
+                    "field_value": "120305"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.2.postcode",
+                    "field_value": "11140"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_occupation.employType",
+                    "field_value": "FREELANCE"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_occupation.type",
+                    "field_value": "06"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_occupation.subType",
+                    "field_value": "15"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_occupation.gsbRegSalaryAmount",
+                    "field_value": ""
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_occupation.gsbRegIncomeTotalAmount",
+                    "field_value": "32000.00"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_occupation.gsbIncomeTotalAmount",
+                    "field_value": "32000.00"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_customerInfo.authenticationType",
+                    "field_value": "EKYC"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_gsb.rejectReason",
+                    "field_value": "CC2"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_gsb.debtServiceRatio",
+                    "field_value": "0.80"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_gsb.aScoreGrade",
+                    "field_value": "C"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_gsb.riskLevel",
+                    "field_value": "12"
+                }
+            ],
+            "campaign_select_questions": [
+                {
+                    "source": "customer",
+                    "field_name": "_loan.campaignSelect",
+                    "field_value": "agsb0724"
+                }
+            ],
+            "secondary_questions": [
+                {
+                    "source": "customer",
+                    "field_name": "_customerInfo.mailingAddressIndex",
+                    "field_value": "2"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.3.line1",
+                    "field_value": "204"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.3.line2",
+                    "field_value": ""
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.3.city",
+                    "field_value": "10"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.3.district",
+                    "field_value": "1030"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.3.subDistrict",
+                    "field_value": "103004"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_addresses.3.postcode",
+                    "field_value": "10900"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_bankAccount.1.accountNumber",
+                    "field_value": "020000362093"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_bankAccount.1.accountName",
+                    "field_value": "นาย สุภคี จงวิเศษกุล"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_bankAccount.1.bankName",
+                    "field_value": "ธนาคารออมสิน"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_bankAccount.1.bankId",
+                    "field_value": "030"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_bankAccount.1.isValid",
+                    "field_value": "true"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_bankAccount.1.isDefault",
+                    "field_value": "true"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_refPersons.1.firstName",
+                    "field_value": "สมัคร"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_refPersons.1.lastName",
+                    "field_value": "ศรสุพรรณ"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_refPersons.1.mobilePhone",
+                    "field_value": "0614519532"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_refPersons.1.relationship",
+                    "field_value": "05"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_refPersons.2.firstName",
+                    "field_value": ""
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_refPersons.2.lastName",
+                    "field_value": ""
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_refPersons.2.mobilePhone",
+                    "field_value": ""
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_refPersons.2.relationship",
+                    "field_value": ""
+                },
+                {
+                    "source": "customer",
+                    "field_name": "scheduleSettings.repaymentInstallments",
+                    "field_value": "24"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "loanAmount",
+                    "field_value": "20000"
+                },
+                {
+                    "source": "customer",
+                    "field_name": "_loan.repaymentType",
+                    "field_value": "TERM"
+                }
+            ],
+            "customer_decision": [
+                {"field_name": "_loan.customerDecision", "field_value": "ACCEPT", "source": "customer"},
+                {"field_name": "loanAmount", "field_value": "20000", "source": "customer"},
                 {"field_name": "_loan.repaymentType", "field_value": "TERM", "source": "customer"},
                 {"field_name": "scheduleSettings.repaymentInstallments", "field_value": "24", "source": "customer"},
                 {"field_name": "scheduleSettings.fixedDaysOfMonth", "field_value": "2", "source": "customer"}
