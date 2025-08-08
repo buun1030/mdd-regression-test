@@ -184,7 +184,7 @@ def test_normal_workflow(session, email, password, scenario):
     # Step 8.3: Verify SCA tasks
     print("  8.3: Verifying SCA tasks...")
     wf.verify_tasks(session, session_id, case_id)
-    time.sleep(5) 
+    time.sleep(10) 
     case_detail = wf.get_case_detail(session, session_id, case_id)
     remaining_verifying_field_list = case_detail.get("remaining_verifying_field_list", [])
     assert remaining_verifying_field_list == [], "remaining_verifying_field_list should be empty"
