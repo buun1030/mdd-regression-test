@@ -11,19 +11,13 @@ Before you can run the tests, you need to have the following installed on your s
 
 ## Setup
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/your-repository.git
-    cd your-repository
-    ```
-
-2.  **Create a virtual environment:**
+1.  **Create a virtual environment:**
     It's a good practice to create a virtual environment to isolate the project's dependencies.
     ```bash
     python3 -m venv venv
     ```
 
-3.  **Activate the virtual environment:**
+2.  **Activate the virtual environment:**
     *   **On macOS and Linux:**
         ```bash
         source venv/bin/activate
@@ -33,23 +27,11 @@ Before you can run the tests, you need to have the following installed on your s
         venv\Scripts\activate
         ```
 
-4.  **Install dependencies:**
+3.  **Install dependencies:**
     Install the required Python packages using `pip`:
     ```bash
     pip install -r requirements.txt
     ```
-
-5.  **Configure the API key:**
-    The tests require an API key to access the API. Create a file named `config.ini` in the root directory of the project and add the following content:
-    ```ini
-    [settings]
-    base_url = https://moneydd-dev.thinkerfint.com
-    email = moneydd-dev@thinkerfint.com
-    password = moneydd-dev
-    product_name = moneydd.pLoan
-    thinker_workspace = Develop
-    ```
-    Replace `moneydd-dev@thinkerfint.com` and `moneydd-dev` with your actual login credentials.
 
 ## Running the Tests
 
