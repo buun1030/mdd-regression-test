@@ -1,10 +1,10 @@
 import pytest
 import time
-from .scenarios import HAPPY_PATH_SCENARIOS
+from .scenarios import NORMAL_HAPPY_PATH_SCENARIOS, GSB_LEAD_HAPPY_PATH_SCENARIOS
 from . import workflow_helpers as wf
 
-@pytest.mark.parametrize("scenario", HAPPY_PATH_SCENARIOS, ids=lambda s: s["test_id"])
-def test_full_workflow(session, email, password, scenario):
+@pytest.mark.parametrize("scenario", NORMAL_HAPPY_PATH_SCENARIOS, ids=lambda s: s["test_id"])
+def test_normal_workflow(session, email, password, scenario):
     """
     Tests the entire end-to-end user workflow from login to booking.
     Each run is independent and driven by its scenario data.
@@ -184,7 +184,7 @@ def test_full_workflow(session, email, password, scenario):
     # Step 8.3: Verify SCA tasks
     print("  8.3: Verifying SCA tasks...")
     wf.verify_tasks(session, session_id, case_id)
-    time.sleep(5) 
+    time.sleep(10) 
     case_detail = wf.get_case_detail(session, session_id, case_id)
     remaining_verifying_field_list = case_detail.get("remaining_verifying_field_list", [])
     assert remaining_verifying_field_list == [], "remaining_verifying_field_list should be empty"
@@ -319,7 +319,7 @@ def test_full_workflow(session, email, password, scenario):
     wf.answer_questions(session, session_id, case_id, scenario["answers"]["customer_decision"])
     print("Step 11: Customer Decision answered.")
 
-    print("Step 12: Booking...")
+    print("Step 12: Completed Status...")
     # Step 12: Verify Completed Status
     time.sleep(10)
     max_retries = 3
@@ -362,3 +362,118 @@ def test_full_workflow(session, email, password, scenario):
     assert "latest_status" in booking_detail
     assert booking_detail["latest_status"] == "COMPLETED"
     print("Step 13: Booking Detail retrieved.")
+    
+@pytest.mark.parametrize("scenario", GSB_LEAD_HAPPY_PATH_SCENARIOS, ids=lambda s: s["test_id"])
+def test_gsb_lead_workflow(session, email, password, scenario):
+    """
+    Tests the entire end-to-end user workflow from login to booking.
+    Each run is independent and driven by its scenario data.
+    """
+    print(f"--- Starting Test: {scenario["test_id"]} ---")
+
+    print("Step 1: Logging in...")
+    # Step 1: Login
+    session_id = wf.login(session, email, password)
+    assert session_id
+    print("Step 1: Login successful.")
+
+    print("Step 2: Applying for Product...")
+    # Step 2: Apply for Product
+    case_id = wf.apply_for_product(session, session_id, scenario["product_name"])
+    assert case_id
+    print(f"Step 2: Product applied. Case ID: {case_id}")
+
+    print("Step 3: Answering Initial Questions...")
+    # Step 3: Answer Initial & Campaign Select Questions
+    wf.answer_questions(session, session_id, case_id, scenario["answers"]["initial_questions"])
+    wf.answer_questions(session, session_id, case_id, scenario["answers"]["campaign_select_questions"])
+    print("Step 3: Initial Questions answered.")
+    
+    print("Step 4: Submitting Case...")
+    # Step 4: Submit Case
+    wf.submit_case(session, session_id, case_id)
+    print("Step 4: Case submitted.")
+    
+    print("Step 5: Verifying Case Details (Customer Decision Unknown, Loan Status PRE-APPROVED, etc.)...")
+    # Step 5.1: Verify Customer Decision is Unknown
+    time.sleep(5)
+    max_retries = 3
+    retry_delay = 5
+    for attempt in range(max_retries + 1):
+        case_detail = wf.get_case_detail(session, session_id, case_id)
+        if any(item.get("field_name") == "_loan.customerDecision" and item.get("value") == "__UNKNOWN__" for item in case_detail["traversal_path"]):
+            break
+        elif attempt < max_retries:
+            print(f"Attempt {attempt + 1}/{max_retries + 1}: Condition not met. Retrying in {retry_delay} seconds...")
+            time.sleep(retry_delay)
+        else:
+            pytest.fail("Expected '_loan.customerDecision' with '__UNKNOWN__' value not found after retries")
+
+    # Step 5.2: Verify Loan Status is PRE-APPROVED
+    time.sleep(5)
+    customer_data_list = case_detail.get("customer_data", [])
+    loan_status_found = False
+    for item in customer_data_list:
+        if item.get("field_name") == "thinker.loanStatus" and item.get("value") == "PRE-APPROVED":
+            loan_status_found = True
+            break
+    assert loan_status_found, "Expected 'thinker.loanStatus' with 'PRE-APPROVED' value not found in customer_data"
+
+    # Step 5.3: Verify Verifying Field List is Not Empty
+    verifying_field_list = case_detail.get("verifying_field_list", [])
+    assert len(verifying_field_list) > 0, "verifying_field_list should not be empty"
+    
+    print("Step 6: Answering Secondary Questions...")
+    # Step 6: Answer Secondary Questions
+    wf.answer_questions(session, session_id, case_id, scenario["answers"]["secondary_questions"])
+    print("Step 6: Secondary Questions answered.")
+    
+    print("Step 7: Verifying Case Details (Loan Status APPROVED, etc.)...")
+    # Step 7: Verify Loan Status is APPROVED
+    time.sleep(10)
+    case_detail = wf.get_case_detail(session, session_id, case_id)
+    customer_data_list = case_detail.get("customer_data", [])
+    loan_status_found = False
+    for item in customer_data_list:
+        if item.get("field_name") == "thinker.loanStatus" and item.get("value") == "APPROVED":
+            loan_status_found = True
+            break
+    assert loan_status_found, "Expected 'thinker.loanStatus' with 'APPROVED' value not found in customer_data"
+    print("Step 7: Loan Status is APPROVED verified.")
+    
+    print("Step 8: Customer Decision...")
+    # Step 8: Answer Customer Decision
+    wf.answer_questions(session, session_id, case_id, scenario["answers"]["customer_decision"])
+    print("Step 8: Customer Decision answered.")
+    
+    print("Step 9: Completed Status...")
+    # Step 9.1: Verify Loan Status is COMPLETED
+    time.sleep(10)
+    case_detail = wf.get_case_detail(session, session_id, case_id)
+    customer_data_list = case_detail.get("customer_data", [])
+    loan_status_found = False
+    for item in customer_data_list:
+        if item.get("field_name") == "thinker.loanStatus" and item.get("value") == "COMPLETED":
+            loan_status_found = True
+            break
+    assert loan_status_found, "Expected 'thinker.loanStatus' with 'COMPLETED' value not found in customer_data"
+    
+    # Step 9.2: Verify Case Status is COMPLETED
+    assert case_detail.get("status") == "completed", "Expected status to be 'completed' but got a different value"
+    
+    # Step 9.3: Verify Verifying Field List is Not Empty
+    verifying_field_list = case_detail.get("verifying_field_list", [])
+    assert len(verifying_field_list) > 0, "verifying_field_list should not be empty"
+    
+    # Step 9.4: Verify Remaining Verifying Field List is Empty
+    remaining_verifying_field_list = case_detail.get("remaining_verifying_field_list", [])
+    assert remaining_verifying_field_list == [], "remaining_verifying_field_list should be empty"
+    print("Step 9: Completed Status verified.")
+    
+    print("Step 10: Booking Detail...")
+    # Step 10: Get Booking Detail
+    time.sleep(5)
+    booking_detail = wf.get_booking_detail(session, session_id, case_id)
+    assert "latest_status" in booking_detail
+    assert booking_detail["latest_status"] == "COMPLETED"
+    print("Step 10: Booking Detail retrieved.")
