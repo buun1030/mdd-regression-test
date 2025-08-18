@@ -249,9 +249,9 @@ def get_task_details(session, session_id, case_id):
             print(f"\nError fetching task detail for task_id: {task_id}")
             print(f"\n{e}\nResponse Text: {e.response.text}")
             raise
-    task_detail_map_path = os.path.join(ROOT_DIR, '..', 'task_detail_map.json')
-    with open(task_detail_map_path, "w") as f:
-        f.write(json.dumps(task_detail_map, indent=4))
+    # task_detail_map_path = os.path.join(ROOT_DIR, '..', 'task_detail_map.json')
+    # with open(task_detail_map_path, "w") as f:
+    #     f.write(json.dumps(task_detail_map, indent=4))
     return task_detail_map
 
 def edit_task_data(session, session_id, payload):
