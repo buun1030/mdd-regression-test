@@ -13,6 +13,11 @@ NORMAL_HAPPY_PATH_SCENARIOS = [
         "answers": {
             "initial_questions": [
                 {
+                    "field_name": "_loan.loanApplicationNumber",
+                    "field_value": "a02_ploan_new_customer",
+                    "source": "customer"
+                },
+                {
                     "field_name": "emailAddress",
                     "field_value": "test-email@gmail.com",
                     "source": "customer"
@@ -20,11 +25,6 @@ NORMAL_HAPPY_PATH_SCENARIOS = [
                 {
                     "field_name": "mobilePhone",
                     "field_value": "0899999988",
-                    "source": "customer"
-                },
-                {
-                    "field_name": "_loan.loanApplicationNumber",
-                    "field_value": "TESTLOANTYPE111114",
                     "source": "customer"
                 },
                 {
@@ -1006,6 +1006,11 @@ NORMAL_HAPPY_PATH_SCENARIOS = [
         "answers": {
             "initial_questions": [
                 {
+                    "field_name": "_loan.loanApplicationNumber",
+                    "field_value": "a02_nanoLoan_new_customer",
+                    "source": "customer"
+                },
+                {
                     "field_name": "_credit.foundInAmlo",
                     "field_value": "NOT_FOUND",
                     "source": "customer"
@@ -1093,11 +1098,6 @@ NORMAL_HAPPY_PATH_SCENARIOS = [
                 {
                     "field_name": "mobilePhone",
                     "field_value": "0899999988",
-                    "source": "customer"
-                },
-                {
-                    "field_name": "_loan.loanApplicationNumber",
-                    "field_value": "buun_loan_test02",
                     "source": "customer"
                 },
                 {
@@ -2170,14 +2170,14 @@ NORMAL_HAPPY_PATH_SCENARIOS = [
 
 GSB_LEAD_HAPPY_PATH_SCENARIOS = [
     {
-        "test_id": "ploan",
+        "test_id": "gsb_lead_ploan",
         "product_name": "moneydd.pLoan",
         "answers": {
             "initial_questions": [
                 {
                     "source": "customer",
                     "field_name": "_loan.loanApplicationNumber",
-                    "field_value": "TESTAUTOAPPROVE"
+                    "field_value": "gsb_lead_ploan"
                 },
                 {
                     "source": "customer",
@@ -2489,14 +2489,14 @@ GSB_LEAD_HAPPY_PATH_SCENARIOS = [
         }
     },
     {
-        "test_id": "nanoLoan",
+        "test_id": "gsb_lead_nanoloan",
         "product_name": "moneydd.nanoLoan",
         "answers": {
             "initial_questions": [
                 {
                     "source": "customer",
                     "field_name": "_loan.loanApplicationNumber",
-                    "field_value": "TESTAUTOAPPROVE"
+                    "field_value": "gsb_lead_nanoloan"
                 },
                 {
                     "source": "customer",

@@ -27,6 +27,11 @@ This project contains automated regression tests for a sample API, written in Py
     pytest -n auto
     ```
 
+*   **Run tests in parallel with report:**
+    ```bash
+    pytest -n auto --tb=short --html=report.html
+    ```
+
 ## Project Structure
 
 ```
