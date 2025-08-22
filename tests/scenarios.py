@@ -1107,7 +1107,7 @@ NORMAL_HAPPY_PATH_SCENARIOS = [
                 },
                 {
                     "field_name": "_customerInfo.nationalIdNumber",
-                    "field_value": "1200100436664",
+                    "field_value": "4846731225334",
                     "source": "customer"
                 },
                 {
@@ -1132,7 +1132,7 @@ NORMAL_HAPPY_PATH_SCENARIOS = [
                 },
                 {
                     "field_name": "firstName",
-                    "field_value": "กล้านรงค์",
+                    "field_value": "Kittiwin1",
                     "source": "customer"
                 },
                 {
@@ -1457,12 +1457,12 @@ NORMAL_HAPPY_PATH_SCENARIOS = [
                 },
                 {
                     "field_name": "_spouse.firstName",
-                    "field_value": "สมมุติแก้ไข",
+                    "field_value": "Peary",
                     "source": "customer"
                 },
                 {
                     "field_name": "_spouse.lastName",
-                    "field_value": "ทดสอบแก้ไข",
+                    "field_value": "Downy",
                     "source": "customer"
                 },
                 {
